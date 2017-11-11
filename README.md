@@ -15,7 +15,7 @@ extractor.extractNumbers(text);
   {
     "filteredFormat": "420254123123",
     "originalFormat": "+420 254 123 123"
-  }
+  },
   {
     "filteredFormat": "123456789012",
     "originalFormat": "(123) 456-789-012"

@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Extracts telephone numbers from given text.",
   "main": "index.js",
+  "scripts": {
+    "test": "node ./node_modules/mocha/bin/mocha ./test.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kozakvoj/phonenumbers-extractor.git"
