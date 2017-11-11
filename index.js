@@ -2,17 +2,16 @@
 
 const R = require("ramda");
 
-const MIN_NUMBER_LENGTH = 5;
 const DELIMITERS = ["-", ".", "(", ")", " "];
 
 module.exports = {
-    extractNumbers: text => {
+    extractNumbers: (text, minNumberLength) => {
         const numberBlocks = getNumberBlocks(text);
         const rawNumbers = getNumbersByNumberBlocks(text, numberBlocks);
 
         return R.pipe(
             R.uniq,
-            R.filter(number => cleanNumber(number).length >= MIN_NUMBER_LENGTH),
+            R.filter(number => cleanNumber(number).length >= minNumberLength),
             R.map(rawNumber => {
                 return {
                     originalFormat: getOriginalFormat(text, rawNumber),
