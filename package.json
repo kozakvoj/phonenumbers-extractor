@@ -1,0 +1,21 @@
+{
+  "name": "phonenumbers-extractor",
+  "version": "1.0.0",
+  "description": "Extracts telephone numbers from given text.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kozakvoj/phonenumbers-extractor.git"
+  },
+  "author": "Vojtech Kozak",
+  "bugs": {
+    "url": "https://github.com/kozakvoj/phonenumbers-extractor/issues"
+  },
+  "homepage": "https://github.com/kozakvoj/phonenumbers-extractor#readme",
+  "dependencies": {
+    "ramda": "^0.24.1"
+  },
+  "devDependencies": {
+    "mocha": "^4.0.1"
+  }
+}
