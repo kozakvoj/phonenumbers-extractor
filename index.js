@@ -10,8 +10,9 @@ module.exports = {
         if (!text) return [];
         if (minNumberLength <= 0) return [];
 
-        const numberBlocks = R.reject(R.curry(isInUri)(text), getNumberBlocks(text));
-        const rawNumbers = getNumbersByNumberBlocks(text, numberBlocks);
+        const numberBlocks = getNumberBlocks(text);
+        const numberBlocksFiltered = R.reject(R.curry(isInUri)(text), numberBlocks);
+        const rawNumbers = getNumbersByNumberBlocks(text, numberBlocksFiltered);
 
         return R.pipe(
             R.uniq,
@@ -21,7 +22,7 @@ module.exports = {
                     originalFormat: getOriginalFormat(text, rawNumber),
                     filteredFormat: cleanNumber(rawNumber)
                 }
-            }),
+            })
         )(rawNumbers);
     },
 
@@ -55,16 +56,24 @@ function isInUri(text, numberBlock) {
 }
 
 function getOriginalFormat(text, numberBlock) {
-    const trimmedNumberBlock = R.trim(numberBlock);
-    const indexOfNumberBlockInText = text.indexOf(trimmedNumberBlock);
+    const cleanNumberBlock = cleanNumberForOriginalFormat(numberBlock);
+    const indexOfNumberBlockInText = text.indexOf(cleanNumberBlock);
 
-    if (trimmedNumberBlock.indexOf(")") > -1 && text[indexOfNumberBlockInText - 1] === "(") {
-        return `(${trimmedNumberBlock}`
+    if (cleanNumberBlock.indexOf(")") > -1 && text[indexOfNumberBlockInText - 1] === "(") {
+        return `(${cleanNumberBlock}`
     } else if (text[indexOfNumberBlockInText - 1] === "+") {
-        return `+${trimmedNumberBlock}`
+        return `+${cleanNumberBlock}`
     }
 
-    return trimmedNumberBlock;
+    return cleanNumberBlock;
+}
+
+function cleanNumberForOriginalFormat(numberBlock) {
+    const filteredNumberBlock = (R.contains(numberBlock[numberBlock.length - 1], DELIMITERS))
+        ? numberBlock.substring(0, numberBlock.length - 1)
+        : numberBlock;
+
+    return R.trim(filteredNumberBlock);
 }
 
 function getNumbersByNumberBlocks(text, numberBlocks) {
@@ -85,6 +94,8 @@ function getNumberBlocks(text) {
             inCurrentNumberBlock = false;
         }
     }
+
+    if (inCurrentNumberBlock) blocks.push([startBlock, text.length]);
 
     return blocks
 }

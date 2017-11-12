@@ -85,6 +85,43 @@ describe("extractNumbers", () => {
         const numbers = extractor.extractNumbers(text, 5);
         assert.deepEqual(numbers, []);
     });
+
+    it("should extract 505505578", async () => {
+        const text = "Naruszenie prywatności !!! 505505578.";
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, [
+            {
+                originalFormat: "505505578",
+                filteredFormat: "505505578"
+            }
+        ]);
+    });
+
+    it("it should extract 123456789", async () => {
+        const text = `123456789`;
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, [
+            {
+                originalFormat: "123456789",
+                filteredFormat: "123456789"
+            }
+        ]);
+    });
+
+    it("should extract numbers separated by comma", async () => {
+        const text = `800123456,800123456,800123457`;
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, [
+            {
+                originalFormat: "800123456",
+                filteredFormat: "800123456"
+            },
+            {
+                originalFormat: "800123457",
+                filteredFormat: "800123457"
+            }
+        ]);
+    });
 });
 
 describe("cleanNumber", () => {
