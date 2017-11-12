@@ -67,6 +67,18 @@ describe("extractNumbers", () => {
         const numbers = extractor.extractNumbers(text, 5);
         assert.deepEqual(numbers, []);
     });
+
+    it("empty string should return empty array", async () => {
+        const text = "";
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, []);
+    });
+
+    it("string without number should return empty array", async () => {
+        const text = "string without number should return empty array";
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, []);
+    });
 });
 
 describe("cleanNumber", () => {
