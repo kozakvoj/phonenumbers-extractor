@@ -19,7 +19,9 @@ module.exports = {
                 }
             }),
         )(rawNumbers);
-    }
+    },
+
+    cleanNumber
 };
 
 function getOriginalFormat(text, numberBlock) {
