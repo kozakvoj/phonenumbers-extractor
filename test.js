@@ -61,6 +61,12 @@ describe("extractNumbers", () => {
             }
         ]);
     });
+
+    it("shouldn't find numbers inside URI", async () => {
+        const text = "click to reveal *Website: http://www.stevesautoworld.com.au/123456789 *Find Us On Facebook";
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, []);
+    });
 });
 
 describe("cleanNumber", () => {

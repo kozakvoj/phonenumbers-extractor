@@ -1,12 +1,13 @@
 'use strict';
 
 const R = require("ramda");
+const url = require("url");
 
 const DELIMITERS = ["-", ".", "(", ")", " "];
 
 module.exports = {
     extractNumbers: (text, minNumberLength) => {
-        const numberBlocks = getNumberBlocks(text);
+        const numberBlocks = R.reject(R.curry(isInUri)(text), getNumberBlocks(text));
         const rawNumbers = getNumbersByNumberBlocks(text, numberBlocks);
 
         return R.pipe(
@@ -24,6 +25,32 @@ module.exports = {
     cleanNumber
 };
 
+function isInUri(text, numberBlock) {
+    const startBlock = R.head(numberBlock);
+    const endBlock = R.last(numberBlock);
+
+    let startExtendedString = 0;
+    let endExtendedString = text.length;
+
+    for (let i = startBlock - 1; i >= 0; i--) {
+        if (text[i] === " ") {
+            startExtendedString = i + 1;
+            break;
+        }
+    }
+
+    for (let i = endBlock - 1; i <= text.length; i++) {
+        if (text[i] === " ") {
+            endExtendedString = i;
+            break;
+        }
+    }
+
+    const possibleUrl = text.substring(startExtendedString, endExtendedString);
+
+    return (url.parse(possibleUrl).hostname != null)
+}
+
 function getOriginalFormat(text, numberBlock) {
     const trimmedNumberBlock = R.trim(numberBlock);
     const indexOfNumberBlockInText = text.indexOf(trimmedNumberBlock);
@@ -38,31 +65,25 @@ function getOriginalFormat(text, numberBlock) {
 }
 
 function getNumbersByNumberBlocks(text, numberBlocks) {
-    let splitText = [];
-
-    for (let i = 0; i < numberBlocks.startBlocks.length; i++) {
-        splitText.push(text.substring(numberBlocks.startBlocks[i], numberBlocks.endBlocks[i]))
-    }
-
-    return splitText;
+    return R.map(block => text.substring(R.head(block), R.last(block)))(numberBlocks);
 }
 
 function getNumberBlocks(text) {
     let inCurrentNumberBlock = false;
-    let startBlocks = [];
-    let endBlocks = [];
+    let blocks = [];
+    let startBlock = 0;
 
     for (let i = 0; i < text.length; i++) {
         if (charIsNumber(text[i]) && !inCurrentNumberBlock) {
-            startBlocks.push(i);
+            startBlock = i;
             inCurrentNumberBlock = true;
         } else if (!charIsNumberOrDelimiter(text[i]) && inCurrentNumberBlock) {
-            endBlocks.push(i);
+            blocks.push([startBlock, i]);
             inCurrentNumberBlock = false;
         }
     }
 
-    return {startBlocks, endBlocks}
+    return blocks
 }
 
 function charIsNumber(char) {
