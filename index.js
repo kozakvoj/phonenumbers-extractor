@@ -7,6 +7,9 @@ const DELIMITERS = ["-", ".", "(", ")", " "];
 
 module.exports = {
     extractNumbers: (text, minNumberLength) => {
+        if (!text) return [];
+        if (minNumberLength <= 0) return [];
+
         const numberBlocks = R.reject(R.curry(isInUri)(text), getNumberBlocks(text));
         const rawNumbers = getNumbersByNumberBlocks(text, numberBlocks);
 

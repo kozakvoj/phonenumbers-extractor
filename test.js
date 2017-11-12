@@ -79,6 +79,12 @@ describe("extractNumbers", () => {
         const numbers = extractor.extractNumbers(text, 5);
         assert.deepEqual(numbers, []);
     });
+
+    it("should return empty array for undefined", async () => {
+        const text = undefined;
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, []);
+    });
 });
 
 describe("cleanNumber", () => {
