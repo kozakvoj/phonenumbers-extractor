@@ -76,8 +76,10 @@ function charIsNumberOrDelimiter(char) {
 function cleanNumber(text) {
     let replacedText = text;
 
-    DELIMITERS.forEach(delimiter => {
-        replacedText = replacedText.replace(new RegExp(RegExp.quote(delimiter), "g"), "");
+    const replaceStrings = R.concat(DELIMITERS, ["+"]);
+
+    replaceStrings.forEach(replaceString => {
+        replacedText = replacedText.replace(new RegExp(RegExp.quote(replaceString), "g"), "");
     });
 
     return replacedText;

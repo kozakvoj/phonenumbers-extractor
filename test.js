@@ -5,7 +5,7 @@ const it = require("mocha").it;
 const extractor = require("./index");
 const assert = require("assert");
 
-describe("extractor", () => {
+describe("extractNumbers", () => {
     it("should extract 123456789 and 0254 123 123", async () => {
         const text = "This is a 123456789 text with number 0254 123 123 that should be extracted.";
         const numbers = extractor.extractNumbers(text, 5);
@@ -60,5 +60,17 @@ describe("extractor", () => {
                 filteredFormat: "800123457"
             }
         ]);
+    });
+});
+
+describe("cleanNumber", () => {
+    it("should clean from +420 123 456 789 to 420123456789", async () => {
+        const cleanNumber = extractor.cleanNumber("+420 123 456 789");
+        assert.equal(cleanNumber, "420123456789");
+    });
+
+    it("should clean from (420) 123-456-789 to 420123456789", async () => {
+        const cleanNumber = extractor.cleanNumber("(420) 123-456-789");
+        assert.equal(cleanNumber, "420123456789");
     });
 });
