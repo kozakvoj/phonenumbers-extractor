@@ -2,6 +2,7 @@
 
 const R = require("ramda");
 const url = require("url");
+const validator = require('validator');
 
 const DELIMITERS = ["-", ".", "(", ")", " "];
 
@@ -52,7 +53,7 @@ function isInUri(text, numberBlock) {
 
     const possibleUrl = text.substring(startExtendedString, endExtendedString);
 
-    return (url.parse(possibleUrl).hostname != null)
+    return (validator.isURL(possibleUrl))
 }
 
 function getOriginalFormat(text, numberBlock) {

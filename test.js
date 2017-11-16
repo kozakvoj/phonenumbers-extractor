@@ -68,6 +68,12 @@ describe("extractNumbers", () => {
         assert.deepEqual(numbers, []);
     });
 
+    it("shouldn't find numbers inside URI (2)", async () => {
+        const text = "www.stevesautoworld.com.au/123456789";
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, []);
+    });
+
     it("empty string should return empty array", async () => {
         const text = "";
         const numbers = extractor.extractNumbers(text, 5);
