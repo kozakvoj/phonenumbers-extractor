@@ -1,10 +1,11 @@
 'use strict';
 
 const R = require("ramda");
-const url = require("url");
 const validator = require('validator');
 
-const DELIMITERS = ["-", ".", "(", ")", " "];
+const SINGLE_DELIMITERS = ["-", ".", " "];
+const PAIR_DELIMITERS = [{first: "(", second: ")"}];
+
 
 module.exports = {
     extractNumbers: (text, minNumberLength) => {
@@ -20,7 +21,7 @@ module.exports = {
             R.filter(number => cleanNumber(number).length >= minNumberLength),
             R.map(rawNumber => {
                 return {
-                    originalFormat: getOriginalFormat(text, rawNumber),
+                    originalFormat: cleanNumberForOriginalFormat(rawNumber),
                     filteredFormat: cleanNumber(rawNumber)
                 }
             })
@@ -56,21 +57,8 @@ function isInUri(text, numberBlock) {
     return (validator.isURL(possibleUrl))
 }
 
-function getOriginalFormat(text, numberBlock) {
-    const cleanNumberBlock = cleanNumberForOriginalFormat(numberBlock);
-    const indexOfNumberBlockInText = text.indexOf(cleanNumberBlock);
-
-    if (cleanNumberBlock.indexOf(")") > -1 && text[indexOfNumberBlockInText - 1] === "(") {
-        return `(${cleanNumberBlock}`
-    } else if (text[indexOfNumberBlockInText - 1] === "+") {
-        return `+${cleanNumberBlock}`
-    }
-
-    return cleanNumberBlock;
-}
-
 function cleanNumberForOriginalFormat(numberBlock) {
-    const filteredNumberBlock = (R.contains(numberBlock[numberBlock.length - 1], DELIMITERS))
+    const filteredNumberBlock = (R.contains(numberBlock[numberBlock.length - 1], SINGLE_DELIMITERS))
         ? numberBlock.substring(0, numberBlock.length - 1)
         : numberBlock;
 
@@ -85,12 +73,32 @@ function getNumberBlocks(text) {
     let inCurrentNumberBlock = false;
     let blocks = [];
     let startBlock = 0;
+    let firstPairDelimiters = [];
+
+    const charIsNumber = char => !isNaN(parseInt(char));
+    const charIsSingleDelimiter = char => charIsNumber(char) || R.contains(char, SINGLE_DELIMITERS);
+    const charIsFirstPairDelimiter = char => R.contains(char, R.map(R.head, PAIR_DELIMITERS));
+    const findFirstDelimiter = char => R.find(R.propEq('second', char))(PAIR_DELIMITERS).first;
+    const charIsSecondPairDelimiter = (char, firstPairDelimiters) =>
+        R.contains(char, R.map(R.last, PAIR_DELIMITERS)) && R.contains(findFirstDelimiter(char), firstPairDelimiters);
 
     for (let i = 0; i < text.length; i++) {
-        if (charIsNumber(text[i]) && !inCurrentNumberBlock) {
+        const char = text[i];
+
+        // start block
+        if ((charIsNumber(char)
+                || charIsFirstPairDelimiter(char)
+                || char === "+") && !inCurrentNumberBlock) {
+            if (charIsFirstPairDelimiter(char)) firstPairDelimiters.push(char);
             startBlock = i;
             inCurrentNumberBlock = true;
-        } else if (!charIsNumberOrDelimiter(text[i]) && inCurrentNumberBlock) {
+        }
+
+        // end block
+        else if ((!charIsNumber(char)
+                || !charIsSingleDelimiter(char)
+                || !charIsSecondPairDelimiter(char, firstPairDelimiters)) && inCurrentNumberBlock) {
+            console.log(!charIsSecondPairDelimiter(char, firstPairDelimiters));
             blocks.push([startBlock, i]);
             inCurrentNumberBlock = false;
         }
@@ -101,18 +109,17 @@ function getNumberBlocks(text) {
     return blocks
 }
 
-function charIsNumber(char) {
-    return !isNaN(parseInt(char))
-}
-
-function charIsNumberOrDelimiter(char) {
-    return charIsNumber(char) || R.contains(char, DELIMITERS);
-}
-
 function cleanNumber(text) {
     let replacedText = text;
 
-    const replaceStrings = R.concat(DELIMITERS, ["+"]);
+    const replaceStrings = R.pipe(
+        R.concat(SINGLE_DELIMITERS),
+        R.concat(R.pipe(
+            R.map(R.values),
+            R.flatten
+        )(PAIR_DELIMITERS)),
+        R.concat(["+"])
+    )([]);
 
     replaceStrings.forEach(replaceString => {
         replacedText = replacedText.replace(new RegExp(RegExp.quote(replaceString), "g"), "");

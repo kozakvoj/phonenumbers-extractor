@@ -128,6 +128,32 @@ describe("extractNumbers", () => {
             }
         ]);
     });
+
+    it("should extract numbers separated by multiple delimiters", async () => {
+        const text = `This is number +420800123456 (800123456).`;
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, [
+            {
+                originalFormat: "+420800123456",
+                filteredFormat: "420800123456"
+            },
+            {
+                originalFormat: "800123456",
+                filteredFormat: "800123456"
+            }
+        ]);
+    });
+
+    it("it should extract number with inner braces", async () => {
+        const text = `123 (456} 789`;
+        const numbers = extractor.extractNumbers(text, 5);
+        assert.deepEqual(numbers, [
+            {
+                originalFormat: "123 (456} 789",
+                filteredFormat: "123456789"
+            }
+        ]);
+    });
 });
 
 describe("cleanNumber", () => {
