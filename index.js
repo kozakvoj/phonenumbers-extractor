@@ -4,7 +4,7 @@ const R = require("ramda");
 const url = require("url");
 const validator = require('validator');
 
-const DELIMITERS = ["-", ".", "(", ")", " "];
+const DELIMITERS = ["-", ".", "(", ")", " ", "/"];
 
 module.exports = {
     extractNumbers: (text, minNumberLength) => {
